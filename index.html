@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Would You Go On A Date With Me?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #f8afff 0%, #aee9ff 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 2rem;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+      padding: 3rem 3.5rem 2.5rem 3.5rem;
+      text-align: center;
+      max-width: 400px;
+      animation: popin 0.8s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    @keyframes popin {
+      0% { transform: scale(0.7) translateY(60px); opacity: 0; }
+      80% { transform: scale(1.05) translateY(-8px); opacity: 1;}
+      100% { transform: scale(1) translateY(0); }
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2.2rem;
+      letter-spacing: 0.01em;
+      color: #222;
+      text-shadow: 0 1px 0 #fff, 0 2px 8px #aee9ff44;
+    }
+    .button-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      height: 70px;
+      width: 320px;
+      margin: 0 auto;
+      user-select: none;
+    }
+    .btn {
+      min-width: 100px;
+      padding: 14px 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+      transition: 
+        background 0.2s,
+        box-shadow 0.2s,
+        transform 0.2s,
+        left 0.25s cubic-bezier(.68,-0.55,.27,1.55), 
+        top 0.25s cubic-bezier(.68,-0.55,.27,1.55);
+      outline: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .btn-yes {
+      background: linear-gradient(90deg, #4be178 0%, #38b6ff 100%);
+      color: #fff;
+      box-shadow: 0 2px 16px 0 #4be17844;
+      left: 20px;
+      z-index: 1;
+    }
+    .btn-yes:hover, .btn-yes:focus {
+      background: linear-gradient(90deg, #38b6ff 0%, #4be178 100%);
+      box-shadow: 0 4px 32px 0 #38b6ff55;
+      transform: scale(1.08) translateY(-2px);
+    }
+    .btn-no {
+      background: linear-gradient(90deg, #ff7b7b 0%, #ffb347 100%);
+      color: #fff;
+      left: 180px;
+      z-index: 2;
+    }
+    .btn-no:hover, .btn-no:focus {
+      background: linear-gradient(90deg, #ffb347 0%, #ff7b7b 100%);
+      box-shadow: 0 4px 32px 0 #ffb34755;
+      transform: scale(1.08) rotate(-4deg);
+    }
+    .btn-yes::after {
+      content: " 💖";
+      font-size: 1.3em;
+      vertical-align: middle;
+      transition: opacity 0.2s;
+    }
+    .btn-yes:active::after {
+      opacity: 0.4;
+    }
+    @media (max-width: 540px) {
+      .card { padding: 1.5rem 0.7rem; }
+      .button-row { width: 90vw; }
+      .btn { min-width: 90px; font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Would you go on a date with me?</h1>
+    <div class="button-row" id="buttonRow">
+      <button class="btn btn-yes" onclick="alert('Yay! Can\'t wait! 😍')">Yes</button>
+      <button class="btn btn-no" id="noBtn">No</button>
+    </div>
+  </div>
+  <script>
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.querySelector('.btn-yes');
+    const buttonRow = document.getElementById('buttonRow');
+
+    // Initial position for "No" button
+    let noBtnLeft = 180;
+    let noBtnTop = 0;
+    noBtn.style.left = noBtnLeft + "px";
+    noBtn.style.top = noBtnTop + "px";
+
+    // Helper to keep the button within the container
+    function clamp(val, min, max) {
+      return Math.min(Math.max(val, min), max);
+    }
+
+    buttonRow.addEventListener('mousemove', function(e) {
+      const rowRect = buttonRow.getBoundingClientRect();
+      const noRect = noBtn.getBoundingClientRect();
+
+      // Mouse position relative to buttonRow
+      const mouseX = e.clientX - rowRect.left;
+      const mouseY = e.clientY - rowRect.top;
+
+      // No button center position relative to buttonRow
+      const noCenterX = noBtn.offsetLeft + noBtn.offsetWidth / 2;
+      const noCenterY = noBtn.offsetTop + noBtn.offsetHeight / 2;
+
+      // Distance between mouse and No button center
+      const dx = mouseX - noCenterX;
+      const dy = mouseY - noCenterY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      // If mouse is within 100px of the center, move the button away
+      if (distance < 100) {
+        // Move in the opposite direction of the mouse
+        let angle = Math.atan2(dy, dx);
+        // Move a fixed distance away, but not outside the container
+        let moveDist = 120;
+        let newLeft = noBtn.offsetLeft - Math.cos(angle) * moveDist;
+        let newTop = noBtn.offsetTop - Math.sin(angle) * moveDist;
+
+        // Clamp to stay inside the container
+        newLeft = clamp(newLeft, 0, rowRect.width - noBtn.offsetWidth);
+        newTop = clamp(newTop, 0, rowRect.height - noBtn.offsetHeight);
+
+        // Avoid overlap with Yes button
+        const yesRect = yesBtn.getBoundingClientRect();
+        const yesLeft = yesBtn.offsetLeft;
+        const yesTop = yesBtn.offsetTop;
+        const overlap =
+          newLeft < yesLeft + yesBtn.offsetWidth &&
+          newLeft + noBtn.offsetWidth > yesLeft &&
+          newTop < yesTop + yesBtn.offsetHeight &&
+          newTop + noBtn.offsetHeight > yesTop;
+        if (overlap) {
+          // If overlapping, move to a random spot
+          newLeft = Math.random() * (rowRect.width - noBtn.offsetWidth);
+          newTop = Math.random() * (rowRect.height - noBtn.offsetHeight);
+        }
+
+        noBtn.style.left = newLeft + "px";
+        noBtn.style.top = newTop + "px";
+      }
+    });
+
+    // Also move on focus (keyboard navigation)
+    noBtn.addEventListener('focus', () => {
+      const rowRect = buttonRow.getBoundingClientRect();
+      let newLeft = Math.random() * (rowRect.width - noBtn.offsetWidth);
+      let newTop = Math.random() * (rowRect.height - noBtn.offsetHeight);
+      noBtn.style.left = newLeft + "px";
+      noBtn.style.top = newTop + "px";
+      noBtn.blur();
+    });
+    // Prevent click on "No"
+    noBtn.addEventListener('click', () => {
+      const rowRect = buttonRow.getBoundingClientRect();
+      let newLeft = Math.random() * (rowRect.width - noBtn.offsetWidth);
+      let newTop = Math.random() * (rowRect.height - noBtn.offsetHeight);
+      noBtn.style.left = newLeft + "px";
+      noBtn.style.top = newTop + "px";
+    });
+  </script>
+</body>
+</html>
+
+
